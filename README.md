@@ -4,9 +4,9 @@ Projeto em Java e Spring Boot para construir, passo a passo, um sistema bancári
 
 ## Como está o projeto
 
-A classe `Conta` representa uma conta com número, titular e saldo inicial de zero. O saldo é guardado em centavos para evitar erros comuns de arredondamento. Já existem operações de depósito e saque, com testes para validar essas regras e impedir saques acima do saldo.
+A classe `Conta` representa uma conta com número, titular e saldo inicial de zero. O saldo é guardado em centavos para evitar erros comuns de arredondamento. A conta já tem operações de depósito e saque, e os testes cobrem essas regras, incluindo a recusa de saques acima do saldo.
 
-Ao iniciar a aplicação, uma demonstração no terminal cria uma conta de exemplo e executa um depósito de R$ 50,00, um saque de R$ 15,00 e uma tentativa de saque acima do saldo. Assim, é possível acompanhar o saldo mudando e conferir que a operação inválida é recusada.
+Agora a aplicação também oferece um menu no terminal para consultar o saldo, depositar, sacar e encerrar a sessão. Os valores aceitam vírgula ou ponto e são limitados a duas casas decimais.
 
 Transferências e histórico ainda serão implementados.
 
@@ -19,4 +19,4 @@ cd demo
 .\mvnw.cmd spring-boot:run
 ```
 
-A aplicação imprime a demonstração no terminal durante a inicialização.
+A aplicação cria uma conta de exemplo para Eduardo. Você pode digitar as opções do menu e testar operações com valores como `25,90`.
