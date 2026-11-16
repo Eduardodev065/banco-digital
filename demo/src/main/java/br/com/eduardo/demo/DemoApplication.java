@@ -82,7 +82,7 @@ public class DemoApplication {
     }
 
     private static void imprimirLinha(String texto) {
-        System.out.printf("| %-46s |%n", texto);
+        System.out.printf("| %-44s |%n", texto);
     }
 
     private static void depositar(Scanner scanner, Conta conta) {
