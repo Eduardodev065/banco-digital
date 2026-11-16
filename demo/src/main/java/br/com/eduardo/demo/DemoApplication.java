@@ -1,8 +1,10 @@
 package br.com.eduardo.demo;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.util.Scanner;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,25 +19,79 @@ public class DemoApplication {
         SpringApplication.run(DemoApplication.class, args);
 
         Conta conta = new Conta("001", "Eduardo");
-        System.out.println("\n=== Demonstração da conta ===");
-        System.out.println("Titular: " + conta.getTitular());
-        System.out.println("Saldo inicial: " + formatar(conta.getSaldoEmCentavos()));
+        System.out.println("\nConta criada para " + conta.getTitular() + ".");
+        executarMenu(conta);
+    }
 
-        long deposito = 5_000;
-        conta.depositar(deposito);
-        System.out.println("Depósito de " + formatar(deposito)
-                + " realizado. Saldo: " + formatar(conta.getSaldoEmCentavos()));
+    private static void executarMenu(Conta conta) {
+        try (Scanner scanner = new Scanner(System.in)) {
+            while (true) {
+                System.out.println("\n=== Banco Digital ===");
+                System.out.println("1 - Consultar saldo");
+                System.out.println("2 - Depositar");
+                System.out.println("3 - Sacar");
+                System.out.println("0 - Encerrar");
+                System.out.print("Escolha uma opção: ");
 
-        long saque = 1_500;
-        if (conta.sacar(saque)) {
-            System.out.println("Saque de " + formatar(saque)
-                    + " realizado. Saldo: " + formatar(conta.getSaldoEmCentavos()));
+                if (!scanner.hasNextLine()) {
+                    return;
+                }
+
+                String opcao = scanner.nextLine().trim();
+                switch (opcao) {
+                    case "1" -> System.out.println("Saldo: " + formatar(conta.getSaldoEmCentavos()));
+                    case "2" -> depositar(scanner, conta);
+                    case "3" -> sacar(scanner, conta);
+                    case "0" -> {
+                        System.out.println("Sessão encerrada.");
+                        return;
+                    }
+                    default -> System.out.println("Opção inválida. Escolha 0, 1, 2 ou 3.");
+                }
+            }
+        }
+    }
+
+    private static void depositar(Scanner scanner, Conta conta) {
+        Long valor = lerValor(scanner);
+        if (valor == null) {
+            return;
+        }
+        if (valor <= 0) {
+            System.out.println("O depósito precisa ser maior que zero.");
+            return;
         }
 
-        long saqueAcimaDoSaldo = 10_000;
-        if (!conta.sacar(saqueAcimaDoSaldo)) {
-            System.out.println("Saque de " + formatar(saqueAcimaDoSaldo)
-                    + " recusado. Saldo preservado: " + formatar(conta.getSaldoEmCentavos()));
+        conta.depositar(valor);
+        System.out.println("Depósito realizado. Saldo: " + formatar(conta.getSaldoEmCentavos()));
+    }
+
+    private static void sacar(Scanner scanner, Conta conta) {
+        Long valor = lerValor(scanner);
+        if (valor == null) {
+            return;
+        }
+        if (conta.sacar(valor)) {
+            System.out.println("Saque realizado. Saldo: " + formatar(conta.getSaldoEmCentavos()));
+        } else {
+            System.out.println("Saque não realizado. Confira o valor e o saldo disponível.");
+        }
+    }
+
+    private static Long lerValor(Scanner scanner) {
+        System.out.print("Valor (ex.: 25,90): ");
+        if (!scanner.hasNextLine()) {
+            return null;
+        }
+
+        try {
+            BigDecimal valor = new BigDecimal(scanner.nextLine().trim().replace(',', '.'));
+            return valor.setScale(2, RoundingMode.UNNECESSARY)
+                    .movePointRight(2)
+                    .longValueExact();
+        } catch (NumberFormatException | ArithmeticException erro) {
+            System.out.println("Valor inválido. Digite um valor com até duas casas decimais.");
+            return null;
         }
     }
 
