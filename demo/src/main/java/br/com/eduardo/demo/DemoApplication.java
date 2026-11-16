@@ -14,24 +14,20 @@ public class DemoApplication {
 
     private static final NumberFormat FORMATO_MOEDA =
             NumberFormat.getCurrencyInstance(Locale.forLanguageTag("pt-BR"));
+    private static final String BORDA = "─".repeat(46);
 
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
 
         Conta conta = new Conta("001", "Eduardo");
-        System.out.println("\nConta criada para " + conta.getTitular() + ".");
         executarMenu(conta);
     }
 
     private static void executarMenu(Conta conta) {
         try (Scanner scanner = new Scanner(System.in)) {
             while (true) {
-                System.out.println("\n=== Banco Digital ===");
-                System.out.println("1 - Consultar saldo");
-                System.out.println("2 - Depositar");
-                System.out.println("3 - Sacar");
-                System.out.println("0 - Encerrar");
-                System.out.print("Escolha uma opção: ");
+                mostrarPainel(conta);
+                System.out.print("  Escolha uma opção: ");
 
                 if (!scanner.hasNextLine()) {
                     return;
@@ -39,17 +35,43 @@ public class DemoApplication {
 
                 String opcao = scanner.nextLine().trim();
                 switch (opcao) {
-                    case "1" -> System.out.println("Saldo: " + formatar(conta.getSaldoEmCentavos()));
+                    case "1" -> System.out.println("\n  Saldo disponível: "
+                            + formatar(conta.getSaldoEmCentavos()));
                     case "2" -> depositar(scanner, conta);
                     case "3" -> sacar(scanner, conta);
                     case "0" -> {
-                        System.out.println("Sessão encerrada.");
+                        System.out.println("\n  Sessão encerrada. Até mais!");
                         return;
                     }
-                    default -> System.out.println("Opção inválida. Escolha 0, 1, 2 ou 3.");
+                    default -> System.out.println("\n  Opção inválida. Escolha 0, 1, 2 ou 3.");
                 }
+
+                System.out.println("\n  Pressione Enter para voltar ao menu...");
+                if (!scanner.hasNextLine()) {
+                    return;
+                }
+                scanner.nextLine();
             }
         }
+    }
+
+    private static void mostrarPainel(Conta conta) {
+        System.out.println("\n╭" + BORDA + "╮");
+        imprimirLinha("                 BANCO DIGITAL");
+        imprimirLinha("          Operações da conta • Java");
+        System.out.println("├" + BORDA + "┤");
+        imprimirLinha("CONTA  " + conta.getNumero() + "   •   TITULAR  " + conta.getTitular());
+        imprimirLinha("SALDO DISPONÍVEL  " + formatar(conta.getSaldoEmCentavos()));
+        System.out.println("├" + BORDA + "┤");
+        imprimirLinha("[1]  Consultar saldo");
+        imprimirLinha("[2]  Fazer depósito");
+        imprimirLinha("[3]  Fazer saque");
+        imprimirLinha("[0]  Encerrar");
+        System.out.println("╰" + BORDA + "╯");
+    }
+
+    private static void imprimirLinha(String texto) {
+        System.out.printf("│ %-46s │%n", texto);
     }
 
     private static void depositar(Scanner scanner, Conta conta) {
@@ -58,12 +80,13 @@ public class DemoApplication {
             return;
         }
         if (valor <= 0) {
-            System.out.println("O depósito precisa ser maior que zero.");
+            System.out.println("  O depósito precisa ser maior que zero.");
             return;
         }
 
         conta.depositar(valor);
-        System.out.println("Depósito realizado. Saldo: " + formatar(conta.getSaldoEmCentavos()));
+        System.out.println("  Depósito de " + formatar(valor) + " realizado.");
+        System.out.println("  Novo saldo: " + formatar(conta.getSaldoEmCentavos()));
     }
 
     private static void sacar(Scanner scanner, Conta conta) {
@@ -72,14 +95,15 @@ public class DemoApplication {
             return;
         }
         if (conta.sacar(valor)) {
-            System.out.println("Saque realizado. Saldo: " + formatar(conta.getSaldoEmCentavos()));
+            System.out.println("  Saque de " + formatar(valor) + " realizado.");
+            System.out.println("  Novo saldo: " + formatar(conta.getSaldoEmCentavos()));
         } else {
-            System.out.println("Saque não realizado. Confira o valor e o saldo disponível.");
+            System.out.println("  Saque não realizado. Confira o valor e o saldo disponível.");
         }
     }
 
     private static Long lerValor(Scanner scanner) {
-        System.out.print("Valor (ex.: 25,90): ");
+        System.out.print("  Digite o valor (ex.: 25,90): ");
         if (!scanner.hasNextLine()) {
             return null;
         }
@@ -90,7 +114,7 @@ public class DemoApplication {
                     .movePointRight(2)
                     .longValueExact();
         } catch (NumberFormatException | ArithmeticException erro) {
-            System.out.println("Valor inválido. Digite um valor com até duas casas decimais.");
+            System.out.println("  Valor inválido. Use até duas casas decimais.");
             return null;
         }
     }
